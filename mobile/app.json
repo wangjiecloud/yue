@@ -1,0 +1,42 @@
+{
+  "expo": {
+    "name": "约学",
+    "slug": "yue-learning",
+    "version": "0.1.0",
+    "scheme": "yue",
+    "orientation": "default",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#F7F9FC",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#F7F9FC"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.superjai.yue"
+    },
+    "android": {
+      "package": "com.superjai.yue",
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-sqlite",
+      "expo-video",
+      "expo-audio",
+      "expo-sharing",
+      "expo-asset"
+    ]
+  }
+}

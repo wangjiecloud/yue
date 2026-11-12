@@ -1,0 +1,604 @@
+{
+  "$defs": {
+    "ChapterTime": {
+      "additionalProperties": false,
+      "properties": {
+        "chapterId": {
+          "title": "Chapterid",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "startMs": {
+          "minimum": 0,
+          "title": "Startms",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "chapterId",
+        "title",
+        "startMs"
+      ],
+      "title": "ChapterTime",
+      "type": "object"
+    },
+    "ChoiceAnswer": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "choice",
+          "default": "choice",
+          "title": "Kind",
+          "type": "string"
+        },
+        "optionId": {
+          "title": "Optionid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "optionId"
+      ],
+      "title": "ChoiceAnswer",
+      "type": "object"
+    },
+    "Lesson": {
+      "additionalProperties": false,
+      "properties": {
+        "lessonId": {
+          "title": "Lessonid",
+          "type": "string"
+        },
+        "questionId": {
+          "title": "Questionid",
+          "type": "string"
+        },
+        "questionRevision": {
+          "minimum": 1,
+          "title": "Questionrevision",
+          "type": "integer"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "courseMode": {
+          "enum": [
+            "interactive",
+            "lectureOnly"
+          ],
+          "title": "Coursemode",
+          "type": "string"
+        },
+        "videoAssetId": {
+          "title": "Videoassetid",
+          "type": "string"
+        },
+        "durationMs": {
+          "minimum": 0,
+          "title": "Durationms",
+          "type": "integer"
+        },
+        "subtitleAssetId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Subtitleassetid"
+        },
+        "chapters": {
+          "items": {
+            "$ref": "#/$defs/ChapterTime"
+          },
+          "title": "Chapters",
+          "type": "array"
+        },
+        "entryStepId": {
+          "title": "Entrystepid",
+          "type": "string"
+        },
+        "steps": {
+          "items": {
+            "$ref": "#/$defs/LessonStep"
+          },
+          "minItems": 1,
+          "title": "Steps",
+          "type": "array"
+        },
+        "practiceIds": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Practiceids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "lessonId",
+        "questionId",
+        "questionRevision",
+        "title",
+        "courseMode",
+        "videoAssetId",
+        "durationMs",
+        "entryStepId",
+        "steps"
+      ],
+      "title": "Lesson",
+      "type": "object"
+    },
+    "LessonStep": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "display",
+            "narrate",
+            "video",
+            "character",
+            "animateObjects",
+            "interaction",
+            "feedback",
+            "reward",
+            "finish"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "assetId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Assetid"
+        },
+        "prompt": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Prompt"
+        },
+        "text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Text"
+        },
+        "result": {
+          "anyOf": [
+            {
+              "enum": [
+                "correct",
+                "incorrect",
+                "assisted"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Result"
+        },
+        "interaction": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Interaction"
+        },
+        "nextStepId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Nextstepid"
+        },
+        "onCorrect": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Oncorrect"
+        },
+        "onIncorrect": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Onincorrect"
+        },
+        "maxAttempts": {
+          "anyOf": [
+            {
+              "maximum": 3,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Maxattempts"
+        },
+        "onAttemptsExhausted": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Onattemptsexhausted"
+        },
+        "rewardKey": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rewardkey"
+        },
+        "amount": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Amount"
+        }
+      },
+      "required": [
+        "id",
+        "type"
+      ],
+      "title": "LessonStep",
+      "type": "object"
+    },
+    "NumericAnswer": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "numeric",
+          "default": "numeric",
+          "title": "Kind",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "title": "NumericAnswer",
+      "type": "object"
+    },
+    "Option": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "maxLength": 32,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "label": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "label"
+      ],
+      "title": "Option",
+      "type": "object"
+    },
+    "OrderingAnswer": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "ordering",
+          "default": "ordering",
+          "title": "Kind",
+          "type": "string"
+        },
+        "order": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Order",
+          "type": "array"
+        }
+      },
+      "required": [
+        "order"
+      ],
+      "title": "OrderingAnswer",
+      "type": "object"
+    },
+    "PairStrict": {
+      "additionalProperties": false,
+      "properties": {
+        "leftId": {
+          "title": "Leftid",
+          "type": "string"
+        },
+        "rightId": {
+          "title": "Rightid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "leftId",
+        "rightId"
+      ],
+      "title": "PairStrict",
+      "type": "object"
+    },
+    "PairingAnswer": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "pairing",
+          "default": "pairing",
+          "title": "Kind",
+          "type": "string"
+        },
+        "pairs": {
+          "items": {
+            "$ref": "#/$defs/PairStrict"
+          },
+          "minItems": 1,
+          "title": "Pairs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "pairs"
+      ],
+      "title": "PairingAnswer",
+      "type": "object"
+    },
+    "PracticeItem": {
+      "additionalProperties": false,
+      "properties": {
+        "practiceId": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Practiceid",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "singleChoice",
+            "pairing",
+            "ordering",
+            "dragDrop"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "prompt": {
+          "maxLength": 400,
+          "minLength": 1,
+          "title": "Prompt",
+          "type": "string"
+        },
+        "options": {
+          "items": {
+            "$ref": "#/$defs/Option"
+          },
+          "title": "Options",
+          "type": "array"
+        },
+        "answer": {
+          "discriminator": {
+            "mapping": {
+              "choice": "#/$defs/ChoiceAnswer",
+              "numeric": "#/$defs/NumericAnswer",
+              "ordering": "#/$defs/OrderingAnswer",
+              "pairing": "#/$defs/PairingAnswer"
+            },
+            "propertyName": "kind"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/NumericAnswer"
+            },
+            {
+              "$ref": "#/$defs/ChoiceAnswer"
+            },
+            {
+              "$ref": "#/$defs/PairingAnswer"
+            },
+            {
+              "$ref": "#/$defs/OrderingAnswer"
+            }
+          ],
+          "title": "Answer"
+        },
+        "hints": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 3,
+          "minItems": 1,
+          "title": "Hints",
+          "type": "array"
+        },
+        "explanation": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Explanation",
+          "type": "string"
+        },
+        "knowledgePoints": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Knowledgepoints",
+          "type": "array"
+        },
+        "maxAttempts": {
+          "default": 2,
+          "maximum": 3,
+          "minimum": 1,
+          "title": "Maxattempts",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "practiceId",
+        "kind",
+        "prompt",
+        "answer",
+        "hints",
+        "explanation"
+      ],
+      "title": "PracticeItem",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "const": 1,
+      "default": 1,
+      "title": "Schemaversion",
+      "type": "integer"
+    },
+    "courseId": {
+      "title": "Courseid",
+      "type": "string"
+    },
+    "revision": {
+      "minimum": 1,
+      "title": "Revision",
+      "type": "integer"
+    },
+    "grade": {
+      "enum": [
+        1,
+        2,
+        3
+      ],
+      "title": "Grade",
+      "type": "integer"
+    },
+    "subject": {
+      "enum": [
+        "math",
+        "chinese",
+        "english"
+      ],
+      "title": "Subject",
+      "type": "string"
+    },
+    "knowledgePoints": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Knowledgepoints",
+      "type": "array"
+    },
+    "lessons": {
+      "items": {
+        "$ref": "#/$defs/Lesson"
+      },
+      "minItems": 1,
+      "title": "Lessons",
+      "type": "array"
+    },
+    "practices": {
+      "items": {
+        "$ref": "#/$defs/PracticeItem"
+      },
+      "title": "Practices",
+      "type": "array"
+    }
+  },
+  "required": [
+    "courseId",
+    "revision",
+    "grade",
+    "subject",
+    "lessons"
+  ],
+  "title": "Course",
+  "type": "object"
+}

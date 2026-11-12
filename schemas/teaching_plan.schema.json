@@ -1,0 +1,801 @@
+{
+  "$defs": {
+    "ArithmeticFact": {
+      "additionalProperties": false,
+      "description": "A machine-checkable arithmetic relation extracted from the question.",
+      "properties": {
+        "a": {
+          "title": "A",
+          "type": "integer"
+        },
+        "op": {
+          "enum": [
+            "+",
+            "-",
+            "*",
+            "/"
+          ],
+          "title": "Op",
+          "type": "string"
+        },
+        "b": {
+          "title": "B",
+          "type": "integer"
+        },
+        "result": {
+          "title": "Result",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "a",
+        "op",
+        "b",
+        "result"
+      ],
+      "title": "ArithmeticFact",
+      "type": "object"
+    },
+    "Chapter": {
+      "additionalProperties": false,
+      "properties": {
+        "chapterId": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Chapterid",
+          "type": "string"
+        },
+        "title": {
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        },
+        "sceneId": {
+          "title": "Sceneid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "chapterId",
+        "title",
+        "sceneId"
+      ],
+      "title": "Chapter",
+      "type": "object"
+    },
+    "ChoiceAnswer": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "choice",
+          "default": "choice",
+          "title": "Kind",
+          "type": "string"
+        },
+        "optionId": {
+          "title": "Optionid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "optionId"
+      ],
+      "title": "ChoiceAnswer",
+      "type": "object"
+    },
+    "Diagnosis": {
+      "additionalProperties": false,
+      "properties": {
+        "visibleError": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Visibleerror"
+        },
+        "commonMisconceptions": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 5,
+          "title": "Commonmisconceptions",
+          "type": "array"
+        }
+      },
+      "title": "Diagnosis",
+      "type": "object"
+    },
+    "NarrationSegment": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "text": {
+          "maxLength": 600,
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        },
+        "language": {
+          "enum": [
+            "zh",
+            "en"
+          ],
+          "title": "Language",
+          "type": "string"
+        },
+        "emotion": {
+          "default": "neutral",
+          "enum": [
+            "neutral",
+            "encourage",
+            "think",
+            "celebrate",
+            "explain"
+          ],
+          "title": "Emotion",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "text",
+        "language"
+      ],
+      "title": "NarrationSegment",
+      "type": "object"
+    },
+    "NumericAnswer": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "numeric",
+          "default": "numeric",
+          "title": "Kind",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "value"
+      ],
+      "title": "NumericAnswer",
+      "type": "object"
+    },
+    "Option": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "maxLength": 32,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "label": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "label"
+      ],
+      "title": "Option",
+      "type": "object"
+    },
+    "OrderingAnswer": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "ordering",
+          "default": "ordering",
+          "title": "Kind",
+          "type": "string"
+        },
+        "order": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Order",
+          "type": "array"
+        }
+      },
+      "required": [
+        "order"
+      ],
+      "title": "OrderingAnswer",
+      "type": "object"
+    },
+    "PairStrict": {
+      "additionalProperties": false,
+      "properties": {
+        "leftId": {
+          "title": "Leftid",
+          "type": "string"
+        },
+        "rightId": {
+          "title": "Rightid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "leftId",
+        "rightId"
+      ],
+      "title": "PairStrict",
+      "type": "object"
+    },
+    "PairingAnswer": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "pairing",
+          "default": "pairing",
+          "title": "Kind",
+          "type": "string"
+        },
+        "pairs": {
+          "items": {
+            "$ref": "#/$defs/PairStrict"
+          },
+          "minItems": 1,
+          "title": "Pairs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "pairs"
+      ],
+      "title": "PairingAnswer",
+      "type": "object"
+    },
+    "PlanMeta": {
+      "additionalProperties": false,
+      "properties": {
+        "generator": {
+          "default": "yue",
+          "title": "Generator",
+          "type": "string"
+        },
+        "model": {
+          "default": "",
+          "title": "Model",
+          "type": "string"
+        },
+        "promptVersion": {
+          "default": "p1-v1",
+          "title": "Promptversion",
+          "type": "string"
+        },
+        "toolVersion": {
+          "default": "0.1.0",
+          "title": "Toolversion",
+          "type": "string"
+        },
+        "placeholderAudio": {
+          "default": false,
+          "title": "Placeholderaudio",
+          "type": "boolean"
+        },
+        "createdAt": {
+          "default": "",
+          "title": "Createdat",
+          "type": "string"
+        }
+      },
+      "title": "PlanMeta",
+      "type": "object"
+    },
+    "PracticeItem": {
+      "additionalProperties": false,
+      "properties": {
+        "practiceId": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Practiceid",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "singleChoice",
+            "pairing",
+            "ordering",
+            "dragDrop"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "prompt": {
+          "maxLength": 400,
+          "minLength": 1,
+          "title": "Prompt",
+          "type": "string"
+        },
+        "options": {
+          "items": {
+            "$ref": "#/$defs/Option"
+          },
+          "title": "Options",
+          "type": "array"
+        },
+        "answer": {
+          "discriminator": {
+            "mapping": {
+              "choice": "#/$defs/ChoiceAnswer",
+              "numeric": "#/$defs/NumericAnswer",
+              "ordering": "#/$defs/OrderingAnswer",
+              "pairing": "#/$defs/PairingAnswer"
+            },
+            "propertyName": "kind"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/NumericAnswer"
+            },
+            {
+              "$ref": "#/$defs/ChoiceAnswer"
+            },
+            {
+              "$ref": "#/$defs/PairingAnswer"
+            },
+            {
+              "$ref": "#/$defs/OrderingAnswer"
+            }
+          ],
+          "title": "Answer"
+        },
+        "hints": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 3,
+          "minItems": 1,
+          "title": "Hints",
+          "type": "array"
+        },
+        "explanation": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Explanation",
+          "type": "string"
+        },
+        "knowledgePoints": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Knowledgepoints",
+          "type": "array"
+        },
+        "maxAttempts": {
+          "default": 2,
+          "maximum": 3,
+          "minimum": 1,
+          "title": "Maxattempts",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "practiceId",
+        "kind",
+        "prompt",
+        "answer",
+        "hints",
+        "explanation"
+      ],
+      "title": "PracticeItem",
+      "type": "object"
+    },
+    "Question": {
+      "additionalProperties": false,
+      "properties": {
+        "questionId": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Questionid",
+          "type": "string"
+        },
+        "questionRevision": {
+          "minimum": 1,
+          "title": "Questionrevision",
+          "type": "integer"
+        },
+        "grade": {
+          "enum": [
+            1,
+            2,
+            3
+          ],
+          "title": "Grade",
+          "type": "integer"
+        },
+        "subject": {
+          "enum": [
+            "math",
+            "chinese",
+            "english"
+          ],
+          "title": "Subject",
+          "type": "string"
+        },
+        "knowledgePoints": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Knowledgepoints",
+          "type": "array"
+        },
+        "questionType": {
+          "enum": [
+            "singleChoice",
+            "counting",
+            "comparison",
+            "pairing",
+            "ordering",
+            "wordProblem",
+            "listening",
+            "reading",
+            "openEnded"
+          ],
+          "title": "Questiontype",
+          "type": "string"
+        },
+        "stem": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Stem",
+          "type": "string"
+        },
+        "options": {
+          "items": {
+            "$ref": "#/$defs/Option"
+          },
+          "title": "Options",
+          "type": "array"
+        },
+        "answer": {
+          "discriminator": {
+            "mapping": {
+              "choice": "#/$defs/ChoiceAnswer",
+              "numeric": "#/$defs/NumericAnswer",
+              "ordering": "#/$defs/OrderingAnswer",
+              "pairing": "#/$defs/PairingAnswer"
+            },
+            "propertyName": "kind"
+          },
+          "oneOf": [
+            {
+              "$ref": "#/$defs/NumericAnswer"
+            },
+            {
+              "$ref": "#/$defs/ChoiceAnswer"
+            },
+            {
+              "$ref": "#/$defs/PairingAnswer"
+            },
+            {
+              "$ref": "#/$defs/OrderingAnswer"
+            }
+          ],
+          "title": "Answer"
+        },
+        "arithmetic": {
+          "items": {
+            "$ref": "#/$defs/ArithmeticFact"
+          },
+          "title": "Arithmetic",
+          "type": "array"
+        },
+        "visibleWork": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Visiblework"
+        },
+        "uncertainties": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Uncertainties",
+          "type": "array"
+        },
+        "isWithinScope": {
+          "default": true,
+          "title": "Iswithinscope",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "questionId",
+        "questionRevision",
+        "grade",
+        "subject",
+        "knowledgePoints",
+        "questionType",
+        "stem",
+        "answer"
+      ],
+      "title": "Question",
+      "type": "object"
+    },
+    "Scene": {
+      "additionalProperties": false,
+      "properties": {
+        "sceneId": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Sceneid",
+          "type": "string"
+        },
+        "template": {
+          "enum": [
+            "title",
+            "questionBoard",
+            "tenFrame",
+            "summaryBoard",
+            "closing",
+            "wordPairBoard",
+            "pinyinBoard"
+          ],
+          "title": "Template",
+          "type": "string"
+        },
+        "narrationId": {
+          "title": "Narrationid",
+          "type": "string"
+        },
+        "chapterId": {
+          "title": "Chapterid",
+          "type": "string"
+        },
+        "title": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Title"
+        },
+        "subtitle": {
+          "anyOf": [
+            {
+              "maxLength": 300,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Subtitle"
+        },
+        "text": {
+          "anyOf": [
+            {
+              "maxLength": 400,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Text"
+        },
+        "operands": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "integer"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Operands"
+        },
+        "expressions": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 8,
+          "title": "Expressions",
+          "type": "array"
+        },
+        "emphasis": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 8,
+          "title": "Emphasis",
+          "type": "array"
+        }
+      },
+      "required": [
+        "sceneId",
+        "template",
+        "narrationId",
+        "chapterId"
+      ],
+      "title": "Scene",
+      "type": "object"
+    },
+    "Solution": {
+      "additionalProperties": false,
+      "properties": {
+        "steps": {
+          "items": {
+            "$ref": "#/$defs/SolutionStep"
+          },
+          "minItems": 1,
+          "title": "Steps",
+          "type": "array"
+        },
+        "finalAnswer": {
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "Finalanswer",
+          "type": "string"
+        },
+        "method": {
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "Method",
+          "type": "string"
+        }
+      },
+      "required": [
+        "steps",
+        "finalAnswer",
+        "method"
+      ],
+      "title": "Solution",
+      "type": "object"
+    },
+    "SolutionStep": {
+      "additionalProperties": false,
+      "properties": {
+        "index": {
+          "minimum": 1,
+          "title": "Index",
+          "type": "integer"
+        },
+        "text": {
+          "maxLength": 400,
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        },
+        "expression": {
+          "anyOf": [
+            {
+              "maxLength": 120,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expression"
+        }
+      },
+      "required": [
+        "index",
+        "text"
+      ],
+      "title": "SolutionStep",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Internal computer-side plan. The App never executes this directly.",
+  "properties": {
+    "schemaVersion": {
+      "const": 1,
+      "default": 1,
+      "title": "Schemaversion",
+      "type": "integer"
+    },
+    "planId": {
+      "maxLength": 128,
+      "minLength": 1,
+      "title": "Planid",
+      "type": "string"
+    },
+    "question": {
+      "$ref": "#/$defs/Question"
+    },
+    "solution": {
+      "$ref": "#/$defs/Solution"
+    },
+    "diagnosis": {
+      "$ref": "#/$defs/Diagnosis"
+    },
+    "narrations": {
+      "items": {
+        "$ref": "#/$defs/NarrationSegment"
+      },
+      "minItems": 1,
+      "title": "Narrations",
+      "type": "array"
+    },
+    "scenes": {
+      "items": {
+        "$ref": "#/$defs/Scene"
+      },
+      "minItems": 1,
+      "title": "Scenes",
+      "type": "array"
+    },
+    "chapters": {
+      "items": {
+        "$ref": "#/$defs/Chapter"
+      },
+      "minItems": 1,
+      "title": "Chapters",
+      "type": "array"
+    },
+    "practice": {
+      "items": {
+        "$ref": "#/$defs/PracticeItem"
+      },
+      "maxItems": 2,
+      "title": "Practice",
+      "type": "array"
+    },
+    "meta": {
+      "$ref": "#/$defs/PlanMeta"
+    }
+  },
+  "required": [
+    "planId",
+    "question",
+    "solution",
+    "diagnosis",
+    "narrations",
+    "scenes",
+    "chapters"
+  ],
+  "title": "TeachingPlan",
+  "type": "object"
+}

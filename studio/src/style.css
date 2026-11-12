@@ -1,0 +1,114 @@
+:root {
+  --ink: #2b2d42;
+  --muted: #6c7086;
+  --violet: #6c5ce7;
+  --green: #06d6a0;
+  --yellow: #ffd166;
+  --pink: #ff6b9d;
+  --card: #ffffff;
+  --bg: #f6f4ff;
+  font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.card {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 20px 24px;
+  box-shadow: 0 6px 24px rgba(80, 70, 160, 0.08);
+  margin-bottom: 20px;
+}
+
+button {
+  border: none;
+  border-radius: 12px;
+  padding: 10px 20px;
+  font-size: 15px;
+  cursor: pointer;
+  background: var(--violet);
+  color: white;
+  transition: opacity 0.15s ease;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+button.secondary {
+  background: #eef0ff;
+  color: var(--violet);
+}
+
+input[type="file"],
+input[type="text"],
+select {
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid #d8dcee;
+  font-size: 14px;
+}
+
+.progress-track {
+  height: 12px;
+  border-radius: 8px;
+  background: #ece9ff;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--violet), var(--pink));
+  transition: width 0.4s ease;
+}
+
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  margin-right: 6px;
+}
+
+.badge.ok {
+  background: #e2fbf2;
+  color: #0a8f6c;
+}
+
+.badge.warn {
+  background: #fff3d6;
+  color: #9a6b00;
+}
+
+.badge.bad {
+  background: #ffe1ea;
+  color: #b3285b;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid #efedf8;
+}
+
+video {
+  width: 100%;
+  border-radius: 12px;
+  background: #000;
+}

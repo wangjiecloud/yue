@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# Private runtime data: uploads, originals, generated media, model weights
+data/*
+!data/.gitkeep
+*.yuepack
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+
+# Node / studio
+node_modules/
+studio/dist/
+mobile/node_modules/
+mobile/.expo/
+*.apk
+*.aab
+*.jks
+*.keystore
+
+# OS
+.DS_Store

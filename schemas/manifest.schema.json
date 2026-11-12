@@ -1,0 +1,126 @@
+{
+  "$defs": {
+    "ManifestAsset": {
+      "additionalProperties": false,
+      "properties": {
+        "assetId": {
+          "title": "Assetid",
+          "type": "string"
+        },
+        "path": {
+          "title": "Path",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "video",
+            "audio",
+            "image",
+            "subtitle",
+            "animation"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "sha256": {
+          "title": "Sha256",
+          "type": "string"
+        },
+        "bytes": {
+          "minimum": 0,
+          "title": "Bytes",
+          "type": "integer"
+        },
+        "durationMs": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Durationms"
+        }
+      },
+      "required": [
+        "assetId",
+        "path",
+        "kind",
+        "sha256",
+        "bytes"
+      ],
+      "title": "ManifestAsset",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "packageId": {
+      "title": "Packageid",
+      "type": "string"
+    },
+    "courseId": {
+      "title": "Courseid",
+      "type": "string"
+    },
+    "revision": {
+      "minimum": 1,
+      "title": "Revision",
+      "type": "integer"
+    },
+    "schemaVersion": {
+      "const": 1,
+      "default": 1,
+      "title": "Schemaversion",
+      "type": "integer"
+    },
+    "minimumAppVersion": {
+      "default": "0.1.0",
+      "title": "Minimumappversion",
+      "type": "string"
+    },
+    "courseMode": {
+      "enum": [
+        "interactive",
+        "lectureOnly"
+      ],
+      "title": "Coursemode",
+      "type": "string"
+    },
+    "requiredCapabilities": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Requiredcapabilities",
+      "type": "array"
+    },
+    "createdAt": {
+      "title": "Createdat",
+      "type": "string"
+    },
+    "assets": {
+      "items": {
+        "$ref": "#/$defs/ManifestAsset"
+      },
+      "title": "Assets",
+      "type": "array"
+    },
+    "totalUncompressedBytes": {
+      "minimum": 0,
+      "title": "Totaluncompressedbytes",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "packageId",
+    "courseId",
+    "revision",
+    "courseMode",
+    "createdAt",
+    "totalUncompressedBytes"
+  ],
+  "title": "Manifest",
+  "type": "object"
+}
