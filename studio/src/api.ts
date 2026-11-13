@@ -54,6 +54,17 @@ export function fetchJob(jobId: string): Promise<Job> {
   return request<Job>(`/api/jobs/${jobId}`);
 }
 
+export function regenerateJob(
+  jobId: string,
+  payload: { mode?: string; feedback?: string },
+): Promise<Job> {
+  return request<Job>(`/api/jobs/${jobId}/regenerate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+}
+
 export function fetchJobs(): Promise<Job[]> {
   return request<Job[]>("/api/jobs");
 }

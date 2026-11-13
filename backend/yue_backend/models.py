@@ -21,6 +21,17 @@ class Option(StrictModel):
     label: str = Field(min_length=1, max_length=200)
 
 
+class PairSide(StrictModel):
+    """One side of a pairing exercise.
+
+    ``left`` and ``right`` are kept separate from ``options`` so the App can
+    render the two columns unambiguously. Pairing answers reference these ids.
+    """
+
+    id: str = Field(min_length=1, max_length=32)
+    label: str = Field(min_length=1, max_length=200)
+
+
 class ArithmeticFact(StrictModel):
     """A machine-checkable arithmetic relation extracted from the question."""
 
@@ -182,6 +193,8 @@ class PracticeItem(StrictModel):
     kind: Literal["singleChoice", "pairing", "ordering", "dragDrop"]
     prompt: str = Field(min_length=1, max_length=400)
     options: list[Option] = Field(default_factory=list)
+    left: list[PairSide] = Field(default_factory=list)
+    right: list[PairSide] = Field(default_factory=list)
     answer: AnswerRule
     hints: list[str] = Field(min_length=1, max_length=3)
     explanation: str = Field(min_length=1, max_length=500)
@@ -202,6 +215,15 @@ class PracticeItem(StrictModel):
             option.id for option in self.options
         }:
             raise ValueError("practice answer references an unknown option")
+        if self.kind == "pairing":
+            left_ids = {side.id for side in self.left}
+            right_ids = {side.id for side in self.right}
+            if not left_ids or not right_ids:
+                raise ValueError("pairing practice requires non-empty left and right sides")
+            if isinstance(self.answer, PairingAnswer):
+                for pair in self.answer.pairs:
+                    if pair.leftId not in left_ids or pair.rightId not in right_ids:
+                        raise ValueError("pairing answer references an unknown side")
         return self
 
 

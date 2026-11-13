@@ -81,6 +81,9 @@ class _CosyVoiceWorker:
         env["YUE_COSYVOICE_MODEL_DIR"] = str(self.settings.cosyvoice_model_dir or "")
         if self.settings.cosyvoice_code_dir:
             env["YUE_COSYVOICE_CODE_DIR"] = str(self.settings.cosyvoice_code_dir)
+        cache_root = Path(self.settings.data_dir) / "model_cache"
+        env.setdefault("HF_HOME", str(cache_root / "huggingface"))
+        env.setdefault("MODELSCOPE_CACHE", str(cache_root / "modelscope"))
         return env
 
     def _start(self) -> subprocess.Popen:
@@ -106,10 +109,7 @@ class _CosyVoiceWorker:
             try:
                 process.stdin.write(json.dumps(request, ensure_ascii=False) + "\n")
                 process.stdin.flush()
-                line = process.stdout.readline()
-                if not line:
-                    raise TTSGenerationError("cosyvoice worker exited unexpectedly")
-                response = json.loads(line)
+                response = self._read_response(process)
                 if response.get("ok"):
                     return response
                 raise TTSGenerationError(response.get("error", "cosyvoice worker failed"))
@@ -118,6 +118,26 @@ class _CosyVoiceWorker:
                 if attempt == 1:
                     raise TTSGenerationError(f"cosyvoice worker failed: {exc}") from exc
         raise TTSGenerationError("cosyvoice worker failed")
+
+    @staticmethod
+    def _read_response(process: subprocess.Popen) -> dict:
+        assert process.stdout is not None
+        skipped: list[str] = []
+        while True:
+            line = process.stdout.readline()
+            if not line:
+                detail = f"; last stderr: {skipped[-1]}" if skipped else ""
+                raise TTSGenerationError(f"cosyvoice worker exited unexpectedly{detail}")
+            stripped = line.strip()
+            if not stripped:
+                continue
+            try:
+                parsed = json.loads(stripped)
+            except json.JSONDecodeError:
+                skipped.append(stripped[:300])
+                continue
+            if isinstance(parsed, dict) and "ok" in parsed:
+                return parsed
 
     def close(self) -> None:
         if self._process is None:

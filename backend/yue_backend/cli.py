@@ -40,6 +40,15 @@ def main(argv: list[str] | None = None) -> int:
     demo = sub.add_parser("demo", help="generate the demo lesson video and artifacts")
     demo.add_argument("--out", type=Path, default=None)
 
+    demo_pack = sub.add_parser(
+        "demo-pack", help="build the offline demo package embedded in the Android app"
+    )
+    demo_pack.add_argument(
+        "--dest",
+        type=Path,
+        default=Path("mobile/assets/demo/course.yuepack"),
+    )
+
     sub.add_parser("export-schemas", help="write JSON Schemas from the pydantic models")
 
     validate = sub.add_parser("validate", help="validate a teaching plan JSON file")
@@ -91,6 +100,22 @@ def main(argv: list[str] | None = None) -> int:
         report = generate_demo_video(demo_settings)
         _print(report)
         _write(args.out, report)
+        return 0
+
+    if args.command == "demo-pack":
+        import shutil
+
+        from .demo_run import generate_demo_video
+
+        demo_settings = settings.model_copy(update={"allow_placeholder_tts": True})
+        report = generate_demo_video(demo_settings, progress=False)
+        source = Path(report["package"])
+        target = args.dest.expanduser()
+        if not target.is_absolute():
+            target = Path.cwd() / target
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(source, target)
+        print(f"wrote {target} ({target.stat().st_size} bytes, source {source})")
         return 0
 
     if args.command == "export-schemas":

@@ -14,15 +14,26 @@ from __future__ import annotations
 import json
 import os
 import sys
-import wave
 from pathlib import Path
+
+_PROTOCOL = sys.stdout
 
 
 def _log(message: str) -> None:
-    print(json.dumps({"ok": False, "error": message}), flush=True)
+    print(json.dumps({"ok": False, "error": message}), file=_PROTOCOL, flush=True)
 
 
 def main() -> int:
+    # Third-party stacks (modelscope, lightning) print to stdout while loading.
+    # Keep stdout reserved for the JSON protocol and move their noise to stderr.
+    sys.stdout = sys.stderr
+
+    # Executed as a standalone script, so sys.path[0] is this package directory.
+    # That makes yue_backend/packaging.py shadow the PyPI ``packaging`` module
+    # used by modelscope (same failure mode as the repo-root logging.py).
+    script_dir = Path(__file__).resolve().parent
+    sys.path[:] = [entry for entry in sys.path if Path(entry or ".").resolve() != script_dir]
+
     model_dir = os.environ.get("YUE_COSYVOICE_MODEL_DIR", "")
     if not model_dir or not Path(model_dir).is_dir():
         _log("YUE_COSYVOICE_MODEL_DIR is not set or missing")
@@ -30,12 +41,14 @@ def main() -> int:
     code_dir = os.environ.get("YUE_COSYVOICE_CODE_DIR", "")
     if code_dir:
         sys.path.insert(0, code_dir)
+        matcha_dir = Path(code_dir) / "third_party" / "Matcha-TTS"
+        if matcha_dir.is_dir():
+            sys.path.insert(0, str(matcha_dir))
 
     try:
         import torch
         import torchaudio
         from cosyvoice.cli.cosyvoice import CosyVoice3
-        from cosyvoice.utils.file_utils import load_wav
     except Exception as exc:  # noqa: BLE001
         _log(f"cosyvoice import failed: {exc}")
         return 2
@@ -56,10 +69,9 @@ def main() -> int:
             reference_text = request["reference_text"]
             if not reference or not Path(reference).is_file() or not reference_text:
                 raise ValueError("reference audio/text is required for zero-shot synthesis")
-            prompt = load_wav(reference, 16000)
             chunks = []
             for output in model.inference_zero_shot(
-                request["text"], reference_text, prompt, stream=False
+                request["text"], reference_text, reference, stream=False
             ):
                 chunks.append(output["tts_speech"])
             if not chunks:
@@ -67,11 +79,17 @@ def main() -> int:
             audio = torch.cat(chunks, dim=1)
             out_path = Path(request["out_path"])
             out_path.parent.mkdir(parents=True, exist_ok=True)
-            torchaudio.save(str(out_path), audio, model.sample_rate)
-            with wave.open(str(out_path), "rb") as handle:
-                duration_ms = int(round(handle.getnframes() * 1000 / handle.getframerate()))
+            torchaudio.save(
+                str(out_path),
+                audio,
+                model.sample_rate,
+                encoding="PCM_S",
+                bits_per_sample=16,
+            )
+            duration_ms = int(round(audio.shape[-1] * 1000 / model.sample_rate))
             print(
                 json.dumps({"ok": True, "out_path": str(out_path), "duration_ms": duration_ms}),
+                file=_PROTOCOL,
                 flush=True,
             )
         except Exception as exc:  # noqa: BLE001

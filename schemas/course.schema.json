@@ -391,6 +391,30 @@
       "title": "OrderingAnswer",
       "type": "object"
     },
+    "PairSide": {
+      "additionalProperties": false,
+      "description": "One side of a pairing exercise.\n\n``left`` and ``right`` are kept separate from ``options`` so the App can\nrender the two columns unambiguously. Pairing answers reference these ids.",
+      "properties": {
+        "id": {
+          "maxLength": 32,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "label": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Label",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "label"
+      ],
+      "title": "PairSide",
+      "type": "object"
+    },
     "PairStrict": {
       "additionalProperties": false,
       "properties": {
@@ -464,6 +488,20 @@
             "$ref": "#/$defs/Option"
           },
           "title": "Options",
+          "type": "array"
+        },
+        "left": {
+          "items": {
+            "$ref": "#/$defs/PairSide"
+          },
+          "title": "Left",
+          "type": "array"
+        },
+        "right": {
+          "items": {
+            "$ref": "#/$defs/PairSide"
+          },
+          "title": "Right",
           "type": "array"
         },
         "answer": {

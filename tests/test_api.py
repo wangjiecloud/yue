@@ -1,4 +1,3 @@
-
 from yue_backend.packaging import inspect_package
 from yue_backend.validation import validate_course
 
@@ -197,6 +196,44 @@ def test_assets_registration(app_client, tmp_path):
         headers={"X-Yue-Token": token},
     )
     assert missing.status_code == 422
+
+
+def test_regenerate_requires_terminal_state(app_client):
+    token = app_client.get("/api/session").json()["token"]
+    job = app_client.post("/api/jobs", json={"demo": True}, headers={"X-Yue-Token": token}).json()
+    response = app_client.post(
+        f"/api/jobs/{job['jobId']}/regenerate",
+        json={"mode": "simpler"},
+        headers={"X-Yue-Token": token},
+    )
+    assert response.status_code == 409
+    assert response.json()["detail"]["code"] == "not_regenerable"
+
+
+def test_regenerate_demo_job_carries_feedback(app_client):
+    token = app_client.get("/api/session").json()["token"]
+    job = app_client.post("/api/jobs", json={"demo": True}, headers={"X-Yue-Token": token}).json()
+    app_client.post(f"/api/jobs/{job['jobId']}/cancel", headers={"X-Yue-Token": token})
+
+    response = app_client.post(
+        f"/api/jobs/{job['jobId']}/regenerate",
+        json={"mode": "simpler", "feedback": "第二行再慢一点"},
+        headers={"X-Yue-Token": token},
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["regenerationOf"] == job["jobId"]
+    assert "更简单" in body["extraFeedback"]
+    assert "第二行再慢一点" in body["extraFeedback"]
+    assert body["status"] == "queued"
+    assert body["demo"] is True
+
+    missing = app_client.post(
+        "/api/jobs/job-missing/regenerate",
+        json={},
+        headers={"X-Yue-Token": token},
+    )
+    assert missing.status_code == 404
 
 
 def test_unknown_job_returns_404(app_client):

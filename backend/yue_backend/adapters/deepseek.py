@@ -64,7 +64,9 @@ wordPairBoard、pinyinBoard。不要发明模板或动作。
 6. 每个 scene 必须引用已存在的 narrationId 和 chapterId；每个 chapter 必须引用已存在 sceneId。
 7. 首期年级为小学一至三年级，科目仅 math、chinese、english。讲解要短、具体、适龄。
 8. interactive 课程必须生成 1 至 2 道 practice。练习必须是同知识点但不同数值或不同题面的新题，\
-不能只是重复原题答案。每道练习必须有 1 至 3 条 hints 和 explanation。
+不能只是重复原题答案。每道练习必须有 1 至 3 条 hints 和 explanation。\
+pairing 练习必须分别填写 left 和 right 两侧，两侧 id 唯一，answer.pairs 只能引用这些 id；\
+singleChoice 与 ordering 使用 options，dragDrop 使用 options 或 numeric 答案。
 9. 讲解旁白使用 zh 或 en，语言与科目匹配；不要声称是官方角色配音。
 10. 若题目超出首期支持范围，仍可生成 lectureOnly 讲解计划，practice 可为空，\
 但必须在 question.uncertainties 或 diagnosis 中明确说明“仅讲解，不自动判分”。

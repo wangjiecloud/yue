@@ -19,6 +19,8 @@ export interface Job {
   progress: number;
   demo: boolean;
   error: string | null;
+  regenerationOf?: string | null;
+  extraFeedback?: string | null;
   videoPath: string | null;
   packagePath: string | null;
   createdAt: string;

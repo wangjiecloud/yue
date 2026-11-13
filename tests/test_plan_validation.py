@@ -8,6 +8,9 @@ from yue_backend.models import (
     ChoiceAnswer,
     NumericAnswer,
     Option,
+    PairingAnswer,
+    PairSide,
+    PairStrict,
     PracticeItem,
     Question,
 )
@@ -61,6 +64,48 @@ def test_choice_answer_must_reference_options():
             stem="1 + 1 = ?",
             options=[Option(id="a", label="1")],
             answer=ChoiceAnswer(kind="choice", optionId="z"),
+        )
+
+
+def test_pairing_practice_accepts_left_right_sides():
+    item = PracticeItem(
+        practiceId="p-pair",
+        kind="pairing",
+        prompt="把算式和结果连起来",
+        left=[PairSide(id="l1", label="2 + 3"), PairSide(id="l2", label="4 + 1")],
+        right=[PairSide(id="r1", label="5")],
+        answer=PairingAnswer(kind="pairing", pairs=[PairStrict(leftId="l1", rightId="r1")]),
+        hints=["先算一算"],
+        explanation="两个算式都等于 5。",
+    )
+    assert item.left[0].id == "l1"
+    assert item.answer.pairs[0].rightId == "r1"
+
+
+def test_pairing_answer_must_reference_known_sides():
+    with pytest.raises(ValidationError):
+        PracticeItem(
+            practiceId="p-pair",
+            kind="pairing",
+            prompt="连线",
+            left=[PairSide(id="l1", label="A")],
+            right=[PairSide(id="r1", label="B")],
+            answer=PairingAnswer(kind="pairing", pairs=[PairStrict(leftId="l1", rightId="r9")]),
+            hints=["提示"],
+            explanation="解释",
+        )
+
+
+def test_pairing_practice_requires_both_sides():
+    with pytest.raises(ValidationError):
+        PracticeItem(
+            practiceId="p-pair",
+            kind="pairing",
+            prompt="连线",
+            left=[PairSide(id="l1", label="A")],
+            answer=PairingAnswer(kind="pairing", pairs=[PairStrict(leftId="l1", rightId="r1")]),
+            hints=["提示"],
+            explanation="解释",
         )
 
 

@@ -52,7 +52,10 @@ export default function DragDrop({
         onStartShouldSetPanResponder: () => true,
         onMoveShouldSetPanResponder: () => true,
         onPanResponderGrant: () => {
-          pan.setOffset({ x: pan.x._value, y: pan.y._value });
+          pan.setOffset({
+            x: (pan.x as unknown as { _value: number })._value,
+            y: (pan.y as unknown as { _value: number })._value,
+          });
           pan.setValue({ x: 0, y: 0 });
         },
         onPanResponderMove: Animated.event([null, { dx: pan.x, dy: pan.y }], {
@@ -124,6 +127,18 @@ export default function DragDrop({
           </Animated.View>
         ))}
       </View>
+      <View style={styles.tapRow}>
+        <Text style={styles.tapHint}>不方便拖动？直接点选：</Text>
+        {options.map((option) => (
+          <Pressable
+            key={`tap-${option.id}`}
+            onPress={() => setPlaced({ optionId: option.id, label: option.label })}
+            style={[styles.tapChip, placed?.optionId === option.id && styles.tapChipActive]}
+          >
+            <Text style={styles.tapChipText}>{option.label}</Text>
+          </Pressable>
+        ))}
+      </View>
       <Pressable onPress={() => setPlaced(null)} style={styles.resetWrap}>
         <Text style={styles.resetText}>放错了？点这里重放</Text>
       </Pressable>
@@ -183,6 +198,36 @@ const styles = StyleSheet.create({
   chipText: {
     fontSize: 24,
     fontWeight: '800',
+    color: colors.primaryDark,
+  },
+  tapRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  tapHint: {
+    fontSize: 14,
+    color: colors.sub,
+  },
+  tapChip: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 999,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    backgroundColor: colors.card,
+    minHeight: 40,
+    justifyContent: 'center',
+  },
+  tapChipActive: {
+    borderColor: colors.primary,
+    backgroundColor: colors.chip,
+  },
+  tapChipText: {
+    fontSize: 16,
+    fontWeight: '700',
     color: colors.primaryDark,
   },
   resetWrap: {

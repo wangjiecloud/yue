@@ -1,4 +1,5 @@
 import { File, Paths } from 'expo-file-system';
+import type { SQLiteBindValue } from 'expo-sqlite';
 import * as Sharing from 'expo-sharing';
 
 import * as db from './db';
@@ -61,11 +62,11 @@ export async function restoreBackup(sourceUri: string): Promise<{ restored: bool
   if (lastRestoreId === payload.exportedAt) {
     return { restored: false, items: 0 };
   }
-  const record = (value: unknown, keys: string[]): unknown[] | null => {
+  const record = (value: unknown, keys: string[]): SQLiteBindValue[] | null => {
     if (typeof value !== 'object' || value === null) return null;
     const row = value as Record<string, unknown>;
     if (!keys.every((key) => key in row)) return null;
-    return keys.map((key) => row[key] ?? null);
+    return keys.map((key) => (row[key] ?? null) as SQLiteBindValue);
   };
   let items = 0;
   await database.withTransactionAsync(async () => {

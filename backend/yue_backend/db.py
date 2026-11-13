@@ -107,9 +107,15 @@ class JobStore:
         grade: int | None,
         subject_hint: str | None,
         demo: bool,
+        extra_feedback: str | None = None,
+        regeneration_of: str | None = None,
     ) -> dict:
         job_id = f"job-{uuid.uuid4().hex[:16]}"
         meta = {"grade": grade, "subjectHint": subject_hint}
+        if extra_feedback:
+            meta["extraFeedback"] = extra_feedback
+        if regeneration_of:
+            meta["regenerationOf"] = regeneration_of
         now = _now()
         with self._lock, self.connect() as connection:
             connection.execute(

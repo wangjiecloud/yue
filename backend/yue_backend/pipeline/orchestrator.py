@@ -140,9 +140,16 @@ def run_job(
             store.update_job(job_id, stage="recognize", progress=0.2)
             if analyzer is None:
                 analyzer = default_analyzer(settings)
-            grade = (job.get("meta") or {}).get("grade")
-            subject_hint = (job.get("meta") or {}).get("subjectHint")
-            raw = analyzer(normalized.read_bytes(), grade=grade, subject_hint=subject_hint)
+            meta = job.get("meta") or {}
+            grade = meta.get("grade")
+            subject_hint = meta.get("subjectHint")
+            extra_feedback = meta.get("extraFeedback")
+            raw = analyzer(
+                normalized.read_bytes(),
+                grade=grade,
+                subject_hint=subject_hint,
+                extra_feedback=extra_feedback,
+            )
             try:
                 plan = TeachingPlan.model_validate(raw)
             except Exception as exc:  # noqa: BLE001
@@ -153,6 +160,8 @@ def run_job(
                     "上次输出未通过本地校验，请只修正下列问题并重新输出完整 JSON："
                     + "; ".join(check.errors)[:1500]
                 )
+                if extra_feedback:
+                    repair = f"{extra_feedback}；{repair}"
                 raw = analyzer(
                     normalized.read_bytes(),
                     grade=grade,

@@ -18,6 +18,8 @@ export default function RootLayout() {
       >
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="lesson/[packageId]" options={{ title: '学一学' }} />
+        <Stack.Screen name="review" options={{ title: '复习' }} />
+        <Stack.Screen name="rewards" options={{ title: '奖励小屋' }} />
         <Stack.Screen name="parent" options={{ title: '家长区' }} />
       </Stack>
     </SafeAreaProvider>

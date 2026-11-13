@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useEventListener } from 'expo';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEventListener, useVideoPlayer, VideoView, type VideoPlayer } from 'expo-video';
+import { useVideoPlayer, VideoView, type VideoPlayer } from 'expo-video';
 
 import DragDrop from '../../components/DragDrop';
 import Ordering from '../../components/Ordering';
@@ -118,6 +119,7 @@ export default function LessonScreen() {
   const runtimeRef = useRef<LessonRuntime | null>(null);
   const installedRef = useRef<InstalledCourse | null>(null);
   const practiceDoneRef = useRef<string[]>([]);
+  const videoWatchedRef = useRef(false);
 
   const handleEvent = useCallback(async (event: LessonEvent) => {
     const current = installedRef.current;
@@ -178,6 +180,7 @@ export default function LessonScreen() {
         void handleEvent(event);
       });
       practiceDoneRef.current = progress.completedPracticeIds;
+      videoWatchedRef.current = progress.videoWatched;
       setPracticeDone(progress.completedPracticeIds);
       runtime.start(progress.videoWatched, progress.completedPracticeIds);
       if (disposed) return;
@@ -218,6 +221,7 @@ export default function LessonScreen() {
     const runtime = runtimeRef.current;
     if (!current || !runtime) return;
     const lesson = current.course.lessons[0];
+    videoWatchedRef.current = true;
     await db.saveLessonProgress(PROFILE, current.row.packageId, lesson.lessonId, {
       videoWatched: true,
       completedPracticeIds: practiceDoneRef.current,
@@ -231,8 +235,10 @@ export default function LessonScreen() {
     const runtime = runtimeRef.current;
     if (!current || !runtime) return;
     const lesson = current.course.lessons[0];
+    // Skipping is allowed so the child can practise, but it must not be
+    // recorded as having watched the whole explanation (A11).
     await db.saveLessonProgress(PROFILE, current.row.packageId, lesson.lessonId, {
-      videoWatched: true,
+      videoWatched: videoWatchedRef.current,
       completedPracticeIds: practiceDoneRef.current,
     });
     runtime.skipVideo();
@@ -255,6 +261,7 @@ export default function LessonScreen() {
     });
     runtimeRef.current = runtime;
     practiceDoneRef.current = [];
+    videoWatchedRef.current = false;
     setPracticeDone([]);
     runtime.start(false, []);
     syncPhase();

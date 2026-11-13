@@ -1,10 +1,13 @@
 # Python
 __pycache__/
 *.py[cod]
-.venv/
+.venv*/
 *.egg-info/
 .pytest_cache/
 .ruff_cache/
+
+# Third-party source checkouts (CosyVoice etc.) are fetched locally.
+third_party/
 
 # Private runtime data: uploads, originals, generated media, model weights
 data/*

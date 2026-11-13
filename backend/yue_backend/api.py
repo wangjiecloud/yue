@@ -43,6 +43,11 @@ class JobCreateRequest(BaseModel):
     demo: bool = False
 
 
+class JobRegenerateRequest(BaseModel):
+    feedback: str = Field(default="", max_length=500)
+    mode: str | None = Field(default=None, max_length=32)
+
+
 class AssetCreateRequest(BaseModel):
     assetId: str = Field(min_length=1, max_length=128)
     kind: str = Field(min_length=1, max_length=32)
@@ -235,6 +240,37 @@ def create_app(
         store.request_cancel(job_id)
         return _job_response(store.get_job(job_id))
 
+    @app.post("/api/jobs/{job_id}/regenerate")
+    def regenerate_job(job_id: str, payload: JobRegenerateRequest):
+        job = store.get_job(job_id)
+        if job is None:
+            raise _error(404, "not_found", "unknown job")
+        if job["status"] not in {"waitingReview", "succeeded", "failed", "cancelled"}:
+            raise _error(
+                409, "not_regenerable", f"job is {job['status']}; wait for a terminal state first"
+            )
+        if not job["demo"] and not job["upload_id"]:
+            raise _error(422, "upload_required", "original upload is unavailable")
+
+        mode_hint = {
+            "simpler": "请用更简单、更慢的讲法重讲一遍，适合当前年级。",
+            "slower": "请减少一次讲完的信息量，把步骤拆得更细、更慢。",
+            "error": "上次成品有错误，请按反馈修正后重新生成。",
+        }.get(payload.mode or "", "")
+        parts = [part for part in (mode_hint, payload.feedback.strip()) if part]
+        extra_feedback = "；".join(parts) or None
+        meta = job.get("meta") or {}
+        created = store.create_job(
+            upload_id=job["upload_id"],
+            grade=meta.get("grade"),
+            subject_hint=meta.get("subjectHint"),
+            demo=job["demo"],
+            extra_feedback=extra_feedback,
+            regeneration_of=job_id,
+        )
+        app.state.worker_wake.set()
+        return _job_response(created)
+
     @app.post("/api/jobs/{job_id}/run")
     def run_job_now(job_id: str):
         job = store.get_job(job_id)
@@ -334,6 +370,8 @@ def create_app(
             "progress": job["progress"],
             "demo": job["demo"],
             "error": job["error"],
+            "regenerationOf": (job.get("meta") or {}).get("regenerationOf"),
+            "extraFeedback": (job.get("meta") or {}).get("extraFeedback"),
             "planPath": job["plan_path"],
             "videoPath": job["video_path"],
             "packagePath": job["package_path"],

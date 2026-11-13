@@ -6,7 +6,9 @@ import * as DocumentPicker from 'expo-document-picker';
 import { Badge, BigButton, Card, colors, EmptyHint } from '../components/ui';
 import { cleanupInterruptedImports, importPack, listInstalledCourses, sweepOrphanCourseDirs, type InstalledCourse } from '../lib/pack';
 import { ensureDemoCourse } from '../lib/demo';
-import { totalRewardStars } from '../lib/db';
+import { reviewList, totalRewardStars } from '../lib/db';
+
+const PROFILE = 'default';
 
 const SUBJECT_LABEL: Record<string, string> = {
   math: '数学',
@@ -17,13 +19,19 @@ const SUBJECT_LABEL: Record<string, string> = {
 export default function HomeScreen() {
   const [courses, setCourses] = useState<InstalledCourse[]>([]);
   const [stars, setStars] = useState(0);
+  const [reviewCount, setReviewCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [importing, setImporting] = useState(false);
 
   const refresh = useCallback(async () => {
-    const [installed, starCount] = await Promise.all([listInstalledCourses(), totalRewardStars()]);
+    const [installed, starCount, reviewItems] = await Promise.all([
+      listInstalledCourses(),
+      totalRewardStars(),
+      reviewList(PROFILE),
+    ]);
     setCourses(installed);
     setStars(starCount);
+    setReviewCount(reviewItems.length);
     setLoading(false);
   }, []);
 
@@ -115,6 +123,12 @@ export default function HomeScreen() {
       </View>
 
       <View style={styles.actions}>
+        <BigButton
+          title={reviewCount ? `复习（${reviewCount} 项）` : '复习'}
+          kind="neutral"
+          onPress={() => router.push('/review')}
+        />
+        <BigButton title="奖励小屋" kind="neutral" onPress={() => router.push('/rewards')} />
         <BigButton title="导入课程包" onPress={pickAndImport} disabled={importing} />
         <BigButton title="家长区" kind="neutral" onPress={() => router.push('/parent')} />
       </View>

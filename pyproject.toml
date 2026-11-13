@@ -41,6 +41,7 @@ addopts = "-q"
 line-length = 100
 target-version = "py312"
 src = ["backend", "scripts", "tests"]
+exclude = [".venv", ".venv-cosyvoice", "third_party", "data", "mobile", "studio", "schemas"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]

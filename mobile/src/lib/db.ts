@@ -301,6 +301,21 @@ export async function totalRewardStars(): Promise<number> {
   return row?.total ?? 0;
 }
 
+export interface RewardEventRow {
+  dedupKey: string;
+  amount: number;
+  reason: string;
+  createdAt: string;
+}
+
+export async function listRewardEvents(profileId: string, limit = 50): Promise<RewardEventRow[]> {
+  const db = await getDb();
+  return db.getAllAsync<RewardEventRow>(
+    'SELECT dedupKey, amount, reason, createdAt FROM reward_events WHERE profileId = ? ORDER BY createdAt DESC LIMIT ?',
+    [profileId, limit],
+  );
+}
+
 export async function addActiveTime(profileId: string, ms: number): Promise<void> {
   const day = nowIso().slice(0, 10);
   const db = await getDb();

@@ -64,9 +64,16 @@ def make_settings(tmp_path: Path, **overrides) -> Settings:
     values = {
         "data_dir": tmp_path / "data",
         "allow_placeholder_tts": False,
+        "cosyvoice_model_dir": None,
+        "cosyvoice_code_dir": None,
+        "cosyvoice_python": None,
+        "cosyvoice_reference_audio": None,
+        "cosyvoice_reference_text": "",
+        "deepseek_base_url": "",
+        "deepseek_api_key": "",
     }
     values.update(overrides)
-    settings = Settings(**values)
+    settings = Settings(_env_file=None, **values)
     settings.ensure_dirs()
     return settings
 

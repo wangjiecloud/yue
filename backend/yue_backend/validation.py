@@ -91,10 +91,20 @@ def validate_plan(plan: TeachingPlan) -> ValidationResult:
     for practice in plan.practice:
         if not practice.hints:
             result.errors.append(f"practice {practice.practiceId} has no hint")
-        if (
-            practice.kind in {"pairing", "ordering", "dragDrop", "singleChoice"}
-            and not practice.options
-        ):
+        if practice.kind == "pairing":
+            if not practice.left or not practice.right:
+                result.errors.append(
+                    f"practice {practice.practiceId} must define left and right pair sides"
+                )
+            if practice.answer.kind == "pairing" and practice.left and practice.right:
+                left_ids = {side.id for side in practice.left}
+                right_ids = {side.id for side in practice.right}
+                for pair in practice.answer.pairs:
+                    if pair.leftId not in left_ids or pair.rightId not in right_ids:
+                        result.errors.append(
+                            f"practice {practice.practiceId} pairs an unknown side"
+                        )
+        elif practice.kind in {"ordering", "dragDrop", "singleChoice"} and not practice.options:
             result.errors.append(f"practice {practice.practiceId} has no options")
 
     if not plan.practice:
@@ -139,9 +149,7 @@ def validate_course(course: Course, manifest: Manifest | None = None) -> Validat
                 step.onAttemptsExhausted,
             ):
                 if target and target not in steps:
-                    result.errors.append(
-                        f"step {step.id} references unknown step {target}"
-                    )
+                    result.errors.append(f"step {step.id} references unknown step {target}")
             if step.type == "interaction":
                 practice_id = (step.interaction or {}).get("practiceId")
                 if practice_id not in practice_set:
@@ -157,9 +165,7 @@ def validate_course(course: Course, manifest: Manifest | None = None) -> Validat
                         f"interaction step {step.id} must define an exhausted branch"
                     )
             if step.assetId and asset_ids and step.assetId not in asset_ids:
-                result.errors.append(
-                    f"step {step.id} references unknown asset {step.assetId}"
-                )
+                result.errors.append(f"step {step.id} references unknown asset {step.assetId}")
 
         reachable: set[str] = set()
         stack = [lesson.entryStepId]

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import AssetsPanel from "./components/AssetsPanel.vue";
 import {
   cancelJob,
@@ -13,6 +13,7 @@ import {
   jobSubtitleUrl,
   jobVideoUrl,
   loadSession,
+  regenerateJob,
   uploadImage,
 } from "./api";
 import type { Health, Job, TeachingPlanSummary } from "./types";
@@ -30,7 +31,12 @@ const job = ref<Job | null>(null);
 const plan = ref<TeachingPlanSummary | null>(null);
 const jobs = ref<Job[]>([]);
 const exportUrl = ref<string>("");
+const regenMode = ref<string>("simpler");
+const regenFeedback = ref<string>("");
+const regenerating = ref(false);
 let pollTimer: number | null = null;
+
+const previewUrl = computed(() => (file.value ? URL.createObjectURL(file.value) : ""));
 
 const stageLabels: Record<string, string> = {
   queued: "排队中",
@@ -143,6 +149,28 @@ async function onExport() {
   }
 }
 
+async function onRegenerate() {
+  if (!job.value) return;
+  regenerating.value = true;
+  error.value = "";
+  try {
+    const created = await regenerateJob(job.value.jobId, {
+      mode: regenMode.value,
+      feedback: regenFeedback.value,
+    });
+    plan.value = null;
+    exportUrl.value = "";
+    regenFeedback.value = "";
+    job.value = created;
+    startPolling();
+    void refreshJobs();
+  } catch (exc) {
+    error.value = String(exc instanceof Error ? exc.message : exc);
+  } finally {
+    regenerating.value = false;
+  }
+}
+
 onMounted(async () => {
   try {
     await loadSession();
@@ -217,7 +245,7 @@ onBeforeUnmount(stopPolling);
             运行内置演示（工程自检）
           </button>
         </div>
-        <img v-if="file" class="preview" :src="URL.createObjectURL(file)" alt="题目预览" />
+        <img v-if="file" class="preview" :src="previewUrl" alt="题目预览" />
       </div>
 
       <div v-if="job" class="card">
@@ -226,6 +254,7 @@ onBeforeUnmount(stopPolling);
           <span class="badge" :class="statusBadge(job.status)">{{ job.status }}</span>
           阶段：{{ stageLabel(job.stage) }}
           <template v-if="job.demo"> · 内置演示</template>
+          <template v-if="job.regenerationOf"> · 重新生成自 {{ job.regenerationOf }}</template>
         </p>
         <div class="progress-track">
           <div class="progress-fill" :style="{ width: `${Math.round(job.progress * 100)}%` }" />
@@ -277,6 +306,25 @@ onBeforeUnmount(stopPolling);
         <div class="row">
           <button @click="onExport">确认并导出课程包</button>
           <a v-if="exportUrl" :href="exportUrl" download>下载 .yuepack</a>
+        </div>
+        <hr />
+        <h3>重新生成</h3>
+        <p class="hint">对讲解不满意时，可基于本任务重新生成一节课。</p>
+        <div class="row">
+          <select v-model="regenMode" :disabled="regenerating">
+            <option value="simpler">讲得更简单</option>
+            <option value="slower">放慢节奏、更细</option>
+            <option value="error">我发现了错误</option>
+          </select>
+          <input
+            v-model="regenFeedback"
+            type="text"
+            placeholder="补充说明（可选）"
+            :disabled="regenerating"
+          />
+          <button :disabled="regenerating" @click="onRegenerate">
+            {{ regenerating ? "提交中…" : "重新生成" }}
+          </button>
         </div>
       </div>
     </section>

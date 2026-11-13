@@ -273,13 +273,7 @@ export class RestrictedZipReader {
   }
 
   async readText(entry: ZipEntry): Promise<string> {
-    const bytes = await this.extractBytes(entry);
-    let result = '';
-    const step = 0x8000;
-    for (let i = 0; i < bytes.length; i += step) {
-      result += String.fromCharCode(...bytes.subarray(i, i + step));
-    }
-    return decodeUtf8(result);
+    return decodeUtf8(await this.extractBytes(entry));
   }
 
   async extractBytes(entry: ZipEntry): Promise<Uint8Array> {
